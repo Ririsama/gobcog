@@ -4284,7 +4284,7 @@ class Adventure(BaseCog):
                     )
                 if hero_talk <= 0:
                     fumblelist.append(user)
-            elif roll == 20:
+            elif roll == 20 or c.heroclass["name"] == "Bard" and c.heroclass["ability"]:
                 ability = ""
                 if roll == 20:
                     msg += f"{bold(self.E(user.display_name))} made a compelling argument.\n"
