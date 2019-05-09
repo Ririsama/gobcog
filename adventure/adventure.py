@@ -2895,7 +2895,7 @@ class Adventure(BaseCog):
                         total_dmg += max(c.att + c.skill['att'], c.int + c.skill['int']) + 10  # assume average rolls
                         total_cha += c.cha + c.skill['cha'] + 10
                 log.debug("passing through total_dmg: " + str(total_dmg) + ", total_cha: " + str(total_cha))
-                challenge, amount = await self._find_challenge(total_dmg, total_cha)
+                challenge, amount = await self._find_challenge(ctx, total_dmg, total_cha)
             except Exception:
                 log.error("Something went wrong forming the group", exc_info=True)
                 return
@@ -2937,7 +2937,7 @@ class Adventure(BaseCog):
             del self._groups[ctx.guild.id]
             del self._groups[ctx.guild.id+1]
 
-    async def _find_challenge(self, dmg, dipl):
+    async def _find_challenge(self, ctx, dmg, dipl):
         challenges = list(self.MONSTERS.keys())
         random.shuffle(challenges)  # if we take the list and shuffle it... we can iterate through it rather than rely on random.choice
         i = 0
