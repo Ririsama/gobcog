@@ -268,7 +268,7 @@ class Adventure(BaseCog):
         """Create a new hero
 
         They can be from any of the following races: Human, Dwarf, Elf, Valkyrie, Fairy.
-        
+
         Humans: Can take over an adventure and provide the party with extra experience
         Dwarves: Are adept at finding treasure after a successful adventure
         Elves: Have great charisma and can sometimes guess the charisma of the encounter
@@ -1292,7 +1292,7 @@ class Adventure(BaseCog):
         except Exception:
             log.error("Error with the new character sheet", exc_info=True)
             return
-        if c.heroclass["name"] != "Wizard":
+        if c.heroclass["name"] != "Cleric":
             ctx.command.reset_cooldown(ctx)
             return await ctx.send(
                 f"{self.E(ctx.author.display_name)}, you need to be a Cleric to do this."
