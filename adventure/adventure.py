@@ -1588,7 +1588,7 @@ class Adventure(BaseCog):
                 if difficulty <= 0 or difficulty > 10:
                     return await ctx.send("Please set difficulty between 1-10")
             except ValueError:
-                await ctx.send(f"Please use something that can convert to an integer...")
+                return await ctx.send(f"Please use something that can convert to an integer...")
         await self.config.guild(ctx.guild).difficulty.set(difficulty)
         await ctx.tick()
         
