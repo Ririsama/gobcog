@@ -1572,19 +1572,16 @@ class Adventure(BaseCog):
     @checks.admin_or_permissions(administrator=True)
     async def difficulty(self, ctx, *, difficulty):
         """[Admin] Sets the difficulty of adventures"""
-        if isinstance(difficulty, str):
-            if difficulty.lower() in ["very easy"]:
-                difficulty = 1
-            elif difficulty.lower() in ["easy", "simple"]:
-                difficulty = 3
-            elif difficulty.lower() in ["average", "medium", "normal"]:
-                difficulty = 5
-            elif difficulty.lower() in ["hard", "difficult"]:
-                difficulty = 7
-            elif difficulty.lower() in ["very hard", "impossible", "very difficult"]:
-                difficulty = 10
-            else:
-                return await ctx.send("Please set difficulty between 1-10")
+        if difficulty.lower() in ["very easy"]:
+            difficulty = 1
+        elif difficulty.lower() in ["easy", "simple"]:
+            difficulty = 3
+        elif difficulty.lower() in ["average", "medium", "normal"]:
+            difficulty = 5
+        elif difficulty.lower() in ["hard", "difficult"]:
+            difficulty = 7
+        elif difficulty.lower() in ["very hard", "impossible", "very difficult"]:
+            difficulty = 10
         else:
             try:
                 difficulty = int(difficulty)
