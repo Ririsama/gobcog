@@ -2896,10 +2896,11 @@ class Adventure(BaseCog):
                 except Exception:
                     log.error("Error with the new character sheet", exc_info=True)
                     continue
-                if c.heroclass["ability"]:
-                    if c.heroclass["name"] != "Ranger":
+                if c.heroclass["ability"] or c.heroclass["ability2"]:
+                    if c.heroclass["ability"] and c.heroclass["name"] != "Ranger":
                         c.heroclass["ability"] = False
-                    c.heroclass["ability2"] = False
+                    if c.heroclass["ability2"]:
+                        c.heroclass["ability2"] = False
                     await self._update_hero(user, c)
         del self._sessions[ctx.guild.id]
         if group:
