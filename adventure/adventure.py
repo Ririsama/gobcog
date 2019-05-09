@@ -51,6 +51,7 @@ class Adventure(BaseCog):
         self._group_actions = ["🗡", "🌟", "🗨", "🛐"]
         self._group_controls = {"fight": "🗡", "magic": "🌟", "talk": "🗨", "pray": "🛐"}
         self._treasure_controls = {"✅": "equip", "❎": "backpack", "💰": "sell"}
+        self._difficulties = {1: 0.6, 2: 0.7, 3: 0.8, 4: 0.9, 5: 1, 6: 1.1, 7: 1.2, 8: 1.3, 9: 1.4, 10: 1.5}
 
         self._adventure_countdown = {}
         self._rewards = {}
@@ -105,6 +106,7 @@ class Adventure(BaseCog):
             "cart_name": "",
             "cart_timeout": 10800,
             "embed": True, 
+            "difficulty": 5,
             "hero_cost": 50000, 
             "class_cost": 10000
         }
@@ -1568,6 +1570,34 @@ class Adventure(BaseCog):
 
     @adventureset.command()
     @checks.admin_or_permissions(administrator=True)
+    async def difficulty(self, ctx, *, difficulty):
+        """[Admin] Sets the difficulty of adventures"""
+        if isinstance(difficulty, str):
+            if difficulty.lower() in ["very easy"]:
+                difficulty = 1
+            elif difficulty.lower() in ["easy", "simple"]:
+                difficulty = 3
+            elif difficulty.lower() in ["average", "medium", "normal"]:
+                difficulty = 5
+            elif difficulty.lower() in ["hard", "difficult"]:
+                difficulty = 7
+            elif difficulty.lower() in ["very hard", "impossible", "very difficult"]:
+                difficulty = 10
+            else:
+                return await ctx.send("Please set difficulty between 1-10")
+        else:
+            try:
+                difficulty = int(difficulty)
+                if difficulty <= 0 or difficulty > 10:
+                    return await ctx.send("Please set difficulty between 1-10")
+            except ValueError:
+                await ctx.send(f"Please use something that can convert to an integer...")
+        await self.config.guild(ctx.guild).difficulty.set(difficulty)
+        await ctx.tick()
+        
+
+    @adventureset.command()
+    @checks.admin_or_permissions(administrator=True)
     async def heroprice(self, ctx, *, price):
         """[Admin] Set the price to make new heroes"""
         try:
@@ -2913,7 +2943,11 @@ class Adventure(BaseCog):
         i = 0
         challenge = challenges[i]
         boss_roll = random.randint(1, 10)
-        strongest_stat = max(dmg, dipl)
+        difficulty = 5  # default, higher is harder, let's us adjust difficulty on the fly
+        if await self.config.guild(ctx.guild).difficulty():
+            difficulty = await self.config.guild(ctx.guild).difficulty()
+        multiplier = self._difficulties[difficulty]
+        strongest_stat = int(max(dmg, dipl) * multiplier)
         hp_dipl = "hp" if strongest_stat == dmg else "dipl"
         if boss_roll == 10:
              while not self.MONSTERS[challenge]["boss"] and i < len(challenges):
@@ -3391,6 +3425,12 @@ class Adventure(BaseCog):
                 c = await Character._from_json(self.config, user)
                 new_dmg += max(c.att + c.skill['att'], c.int + c.skill['int']) + 10  # treat them like others in group
                 new_talk += c.skill['cha'] + c.cha + 10
+            difficulty = 5  # default, higher is harder, let's us adjust difficulty on the fly
+            if await self.config.guild(ctx.guild).difficulty():
+                difficulty = await self.config.guild(ctx.guild).difficulty()
+            multiplier = self._difficulties[difficulty]
+            new_dmg = new_dmg * multiplier
+            new_talk = new_talk * multiplier
             if new_dmg >= self.MONSTERS[challenge]["hp"] or new_talk >= self.MONSTERS[challenge]["dipl"]:
                 new_amount = max(int(new_dmg/self.MONSTERS[challenge]["hp"]), int(new_talk/self.MONSTERS[challenge]["dipl"]))
                 # can happen randomly, let's not add another boss if they can't take out first
