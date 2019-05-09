@@ -3414,22 +3414,23 @@ class Adventure(BaseCog):
         session.participants = set(session.fight + session.magic + session.pray + session.talk)
         added_users = [x for x in session.participants if x not in group_users.participants]
         if len(added_users) >= 1:
-            new_dmg = 0
-            new_talk = 0
+            old_stat = "hp" if (attack + magic) > diplomacy else "dipl"
+            new_stat = 0
             added = False
             added_msg = f"New adventurers joined the group to help...\n"
             for user in added_users:
                 c = await Character._from_json(self.config, user)
-                new_dmg += max(c.att + c.skill['att'], c.int + c.skill['int']) + 10  # treat them like others in group
-                new_talk += c.skill['cha'] + c.cha + 10
+                if old_stat == "hp":
+                    new_stat += max(c.att + c.skill['att'], c.int + c.skill['int']) + 10
+                else:
+                    new_stat += c.skill['cha'] + c.cha + 10
             difficulty = 5  # default, higher is harder, let's us adjust difficulty on the fly
             if await self.config.guild(ctx.guild).difficulty():
                 difficulty = await self.config.guild(ctx.guild).difficulty()
             multiplier = self._difficulties[difficulty]
-            new_dmg = new_dmg * multiplier
-            new_talk = new_talk * multiplier
-            if new_dmg >= self.MONSTERS[challenge]["hp"] or new_talk >= self.MONSTERS[challenge]["dipl"]:
-                new_amount = max(int(new_dmg/self.MONSTERS[challenge]["hp"]), int(new_talk/self.MONSTERS[challenge]["dipl"]))
+            new_stat = new_stat * multiplier
+            if new_stat >= self.MONSTERS[challenge][old_stat]:
+                new_amount = int(new_stat / self.MONSTERS[challenge][old_stat])
                 # can happen randomly, let's not add another boss if they can't take out first
                 if self.MONSTERS[challenge]["boss"]:
                     old_msg = 0
@@ -3438,7 +3439,8 @@ class Adventure(BaseCog):
                         c = await Character._from_json(self.config, user)
                         old_dmg += max(c.att + c.skill['att'], c.int + c.skill['int']) + 10 
                         old_talk += c.skill['cha'] + c.cha + 10
-                    if max(old_dmg/self.MONSTERS[challenge]["hp"], old_talk/self.MONSTERS[challenge]["dipl"]) < 0.75:
+                    
+                    if max(old_dmg/self.MONSTERS[challenge]["hp"], old_talk/self.MONSTERS[challenge]["dipl"]) < (1/multiplier - multiplier/5):
                         new_amount -= 1
                 extra_challenge, plural = await self._plural(challenge, new_amount)
                 session.amount += new_amount
