@@ -4012,14 +4012,14 @@ class Adventure(BaseCog):
                 continue
             bonus_cleric = int((c.int + c.skill["int"] + c.att + c.skill["att"] + c.cha + c.skill["cha"])/3)
             if c.heroclass["name"] == "Cleric" and not aura:
-                chance = min(int(bonus_cleric / 1.8 + 1), c.lvl)
+                chance = min(int(bonus_cleric / 1.9 + 1), c.lvl)
                 aura_roll = random.randint(1, 100)
                 if aura_roll in range (1, chance):
                     aura = True
                     aura_chance = chance
                     blessed_user = user
             if c.heroclass["name"] == "Cleric" and c.heroclass["ability"]:
-                bless_base = max(10, int((10 + bonus_cleric) * 0.5))
+                bless_base = int((10 + bonus_cleric * 2) * 0.5)
                 bless_bonus += max(1, int(bless_base / len(session.fight + session.magic + session.talk)))
         return aura_chance, bless_bonus, blessed_user
 
