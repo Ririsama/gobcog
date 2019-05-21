@@ -4245,7 +4245,7 @@ class Adventure(BaseCog):
                 total_bless_bonus += bless_bonus
             if roll == 1: #fumble
                 if c.heroclass["name"] == "Cleric" and c.heroclass["ability"]:#malus that compensate the bonus granted to the party
-                    pray_score = pray_score - bless_base - bless_bonus * total_size
+                    pray_score = pray_score - bless_base - int(0.95 * bless_bonus * total_size)
                     msg += f"{bold(self.E(user.display_name))}'s sermon offended the mighty {god}.\n"
                     contrib_attack = int(((len(fight_list) / total_size) * pray_score + len(fight_list) * c.lvl / 10) * (1 + (glyphs_bonus / 100)))
                     contrib_diplomacy = int(((len(talk_list) / total_size) * pray_score + len(talk_list) * c.lvl / 10) * (1 + (glyphs_bonus / 100)))
