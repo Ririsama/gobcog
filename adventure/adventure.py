@@ -3129,7 +3129,7 @@ class Adventure(BaseCog):
             "just landed in front of you glaring! \n\n"
             "Is your group strong enough to handle this challenge?!\n"
         )
-        basilisk_text = (
+        miniboss_text = (
             f"but **{prefix}{session.attribute} {challenge}{plural}** stepped out looking around. \n\n"
         )
         normal_text = (
@@ -3160,13 +3160,13 @@ class Adventure(BaseCog):
 
         elif session.miniboss:
             if use_embeds:
-                embed.description = f"{adventure_txt}\n{basilisk_text}"
+                embed.description = f"{adventure_txt}\n{miniboss_text}"
                 embed.colour = discord.Colour.dark_green()
                 if session.monster["image"]:
                     embed.set_image(url=session.monster["image"])
                 await adventure_msg.edit(embed=embed)
             else:
-                await adventure_msg.edit(content=box(f"{adventure_txt}\n{basilisk_text}"))
+                await adventure_msg.edit(content=box(f"{adventure_txt}\n{miniboss_text}"))
             timeout = 75
         else:
             if use_embeds:
@@ -3433,7 +3433,7 @@ class Adventure(BaseCog):
             if len(runners) != 0:
                 run_msg += f"{bold(humanize_list(runners))} just ran away.\n"
         
-        failed = await self.handle_basilisk(ctx, failed)
+        fumblelist = await self.handle_miniboss(ctx, fumblelist)
         fumblelist, attack, diplomacy, magic, pray_msg = await self.handle_pray(
             ctx.guild.id, fumblelist, attack, diplomacy, magic
         )
@@ -3558,7 +3558,7 @@ class Adventure(BaseCog):
         if slain or persuaded and not failed:
             CR = hp + dipl
             treasure = [0, 0, 0, 0]
-            if session.miniboss:  # rewards 50:50 rare:normal chest for killing something like the basilisk
+            if session.miniboss:  # rewards 50:50 rare:normal chest for killing a miniboss
                 treasure = random.choice([[0, 1, 0, 0], [1, 0, 0, 0]])
             elif CR >= 600:  # super hard stuff
                 treasure = [0, 0, 1, 0]  # guaranteed epic
@@ -4357,7 +4357,7 @@ class Adventure(BaseCog):
         msg = pre_fight + msg + report + "\n"
         return (fumblelist, critlist, diplomacy, msg)
 
-    async def handle_basilisk(self, ctx, failed):
+    async def handle_miniboss(self, ctx, fumblelist):
         session = self._sessions[ctx.guild.id]
         fight_list = session.fight
         magic_list = session.magic
@@ -4365,7 +4365,6 @@ class Adventure(BaseCog):
         pray_list = session.pray
         challenge = session.challenge
         if session.miniboss:
-            failed = True
             item, slot = session.miniboss["requirements"]
             for user in (
                 fight_list + magic_list + talk_list + pray_list
@@ -4382,9 +4381,7 @@ class Adventure(BaseCog):
                         break
                 except KeyError:
                     continue
-        else:
-            failed = False
-        return failed
+        return fumblelist
 
     async def _total_xp_required(self, level):
         total_xp = 0
